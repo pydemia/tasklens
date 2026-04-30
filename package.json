@@ -1,0 +1,254 @@
+{
+    "name": "tasklens",
+    "displayName": "TaskLens",
+    "description": "vscode tasks manager",
+    "version": "0.1.0",
+    "publisher": "pydemia",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/pydemia/tasklens.git"
+    },
+    "homepage": "https://github.com/pydemia/tasklens#readme",
+    "bugs": {
+        "url": "https://github.com/pydemia/tasklens/issues"
+    },
+    "engines": {
+        "vscode": "^1.117.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "tasklens",
+                    "title": "Tasklens",
+                    "icon": "media/tasklens.svg"
+                }
+            ]
+        },
+        "views": {
+            "tasklens": [
+                {
+                    "id": "tasklens.workspace",
+                    "name": "Workspace"
+                },
+                {
+                    "id": "tasklens.builtin",
+                    "name": "Auto-detected"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "tasklens.reload",
+                "title": "Reload Tasks",
+                "category": "Tasklens",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "tasklens.runTask",
+                "title": "Run Task",
+                "category": "Tasklens",
+                "icon": "$(play)"
+            },
+            {
+                "command": "tasklens.rerunTask",
+                "title": "Re-run Task",
+                "category": "Tasklens",
+                "icon": "$(debug-restart)"
+            },
+            {
+                "command": "tasklens.stopTask",
+                "title": "Stop Task",
+                "category": "Tasklens",
+                "icon": "$(debug-stop)"
+            },
+            {
+                "command": "tasklens.tailLogs",
+                "title": "Show Task Terminal",
+                "category": "Tasklens",
+                "icon": "$(terminal)"
+            },
+            {
+                "command": "tasklens.revealDefinition",
+                "title": "Reveal Definition",
+                "category": "Tasklens",
+                "icon": "$(go-to-file)"
+            },
+            {
+                "command": "tasklens.createTasksJson",
+                "title": "Create tasks.json",
+                "category": "Tasklens",
+                "icon": "$(new-file)"
+            },
+            {
+                "command": "tasklens.addFavorite",
+                "title": "Add to Favorites",
+                "category": "Tasklens",
+                "icon": "$(star-empty)"
+            },
+            {
+                "command": "tasklens.removeFavorite",
+                "title": "Remove from Favorites",
+                "category": "Tasklens",
+                "icon": "$(star-full)"
+            }
+        ],
+        "viewsWelcome": [
+            {
+                "view": "tasklens.workspace",
+                "contents": "No folder is open in this workspace.\n[Open Folder](command:vscode.openFolder)",
+                "when": "workbenchState == empty"
+            },
+            {
+                "view": "tasklens.workspace",
+                "contents": "No tasks.json found in this workspace.\n[Create tasks.json](command:tasklens.createTasksJson)\nDefine build, test, and run commands for this project. [Learn more](https://code.visualstudio.com/docs/editor/tasks).",
+                "when": "tasklens.noTasksJson && workbenchState != empty"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "tasklens.reload",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "tasklens.runTask",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task(\\.favorite)?$/",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "tasklens.stopTask",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "tasklens.tailLogs",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
+                    "group": "inline@2"
+                },
+                {
+                    "command": "tasklens.addFavorite",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task(\\.running)?$/",
+                    "group": "inline@3"
+                },
+                {
+                    "command": "tasklens.removeFavorite",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /\\.favorite$/",
+                    "group": "inline@3"
+                },
+                {
+                    "command": "tasklens.rerunTask",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task/",
+                    "group": "1_run@1"
+                },
+                {
+                    "command": "tasklens.stopTask",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
+                    "group": "1_run@2"
+                },
+                {
+                    "command": "tasklens.tailLogs",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
+                    "group": "2_logs@1"
+                },
+                {
+                    "command": "tasklens.addFavorite",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task(\\.running)?$/",
+                    "group": "3_nav@1"
+                },
+                {
+                    "command": "tasklens.removeFavorite",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /\\.favorite$/",
+                    "group": "3_nav@1"
+                },
+                {
+                    "command": "tasklens.revealDefinition",
+                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task/",
+                    "group": "3_nav@2"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "tasklens.runTask",
+                    "when": "false"
+                },
+                {
+                    "command": "tasklens.rerunTask",
+                    "when": "false"
+                },
+                {
+                    "command": "tasklens.stopTask",
+                    "when": "false"
+                },
+                {
+                    "command": "tasklens.tailLogs",
+                    "when": "false"
+                },
+                {
+                    "command": "tasklens.revealDefinition",
+                    "when": "false"
+                },
+                {
+                    "command": "tasklens.addFavorite",
+                    "when": "false"
+                },
+                {
+                    "command": "tasklens.removeFavorite",
+                    "when": "false"
+                }
+            ]
+        },
+        "configuration": {
+            "title": "Tasklens",
+            "properties": {
+                "tasklens.groupSeparator": {
+                    "type": "string",
+                    "default": "::",
+                    "description": "Separator used to derive the hierarchical task tree from task labels. E.g. with '::', a task named 'root::branch1::task1' is nested under root > branch1 > task1."
+                },
+                "tasklens.confirmRerunIfRunning": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show a confirmation prompt when re-running a task that is already running."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "yarn run package",
+        "compile": "yarn run check-types && yarn run lint && node esbuild.js",
+        "watch": "npm-run-all -p watch:*",
+        "watch:esbuild": "node esbuild.js --watch",
+        "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+        "package": "yarn run check-types && yarn run lint && node esbuild.js --production",
+        "compile-tests": "tsc -p . --outDir out",
+        "watch-tests": "tsc -p . -w --outDir out",
+        "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+        "check-types": "tsc --noEmit",
+        "lint": "eslint src",
+        "test": "vscode-test"
+    },
+    "dependencies": {
+        "jsonc-parser": "^3.3.1"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.117.0",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "22.x",
+        "typescript-eslint": "^8.56.1",
+        "eslint": "^9.39.3",
+        "esbuild": "^0.27.3",
+        "npm-run-all": "^4.1.5",
+        "typescript": "^5.9.3",
+        "@vscode/test-cli": "^0.0.12",
+        "@vscode/test-electron": "^2.5.2"
+    }
+}
