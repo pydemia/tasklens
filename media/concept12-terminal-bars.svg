@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg12" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2a3050"/>
+      <stop offset="100%" stop-color="#10131e"/>
+    </linearGradient>
+    <linearGradient id="termBg12" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1f2e"/>
+      <stop offset="100%" stop-color="#0a0d16"/>
+    </linearGradient>
+    <linearGradient id="lensRing12" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#cdd6f4"/>
+      <stop offset="100%" stop-color="#6b7a99"/>
+    </linearGradient>
+    <radialGradient id="lensFill12" cx="0.35" cy="0.3" r="0.85">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="doneBar12" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="runBar12" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#9bb8ff"/>
+      <stop offset="100%" stop-color="#4a6fd8"/>
+    </linearGradient>
+    <filter id="termShadow12" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="3" result="o"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.55"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="128" height="128" rx="24" fill="url(#bg12)"/>
+  <rect x="0.5" y="0.5" width="127" height="127" rx="23.5" fill="none" stroke="#ffffff" stroke-opacity="0.06"/>
+
+  <!-- terminal card -->
+  <g filter="url(#termShadow12)">
+    <rect x="16" y="24" width="90" height="74" rx="8" fill="url(#termBg12)" stroke="#3a4258" stroke-width="1.5"/>
+    <!-- title bar -->
+    <circle cx="24" cy="32" r="2.4" fill="#ff6b6b"/>
+    <circle cx="32" cy="32" r="2.4" fill="#fbbf24"/>
+    <circle cx="40" cy="32" r="2.4" fill="#4ade80"/>
+    <line x1="16" y1="38" x2="106" y2="38" stroke="#3a4258" stroke-width="1"/>
+
+    <!-- row 1: done -->
+    <text x="25" y="54" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#7aa2ff">$</text>
+    <rect x="33" y="49" width="48" height="6" rx="3" fill="#2a3148"/>
+    <rect x="33" y="49" width="48" height="6" rx="3" fill="url(#doneBar12)"/>
+    <g transform="translate(86 52)">
+      <circle r="4" fill="#4ade80"/>
+      <path d="M -2 0 L -0.5 1.5 L 2 -1.5" stroke="#0f1a12" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- row 2: running -->
+    <text x="25" y="68" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#7aa2ff">$</text>
+    <rect x="33" y="63" width="48" height="6" rx="3" fill="#2a3148"/>
+    <rect x="33" y="63" width="29" height="6" rx="3" fill="url(#runBar12)"/>
+    <circle cx="62" cy="66" r="3.6" fill="#9bb8ff">
+      <animate attributeName="opacity" values="1;0.35;1" dur="1.2s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- row 3: pending -->
+    <text x="25" y="82" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#7aa2ff" opacity="0.55">$</text>
+    <rect x="33" y="77" width="44" height="6" rx="3" fill="#2a3148"/>
+  </g>
+
+  <!-- lens overlapping bottom-right -->
+  <g>
+    <circle cx="100" cy="92" r="19" fill="url(#lensFill12)" stroke="url(#lensRing12)" stroke-width="5"/>
+    <path d="M 89 86 A 19 19 0 0 1 97 78" stroke="#ffffff" stroke-opacity="0.6" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <line x1="113" y1="105" x2="124" y2="116" stroke="url(#lensRing12)" stroke-width="7" stroke-linecap="round"/>
+  </g>
+</svg>

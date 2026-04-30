@@ -2,7 +2,8 @@
     "name": "tasklens",
     "displayName": "TaskLens",
     "description": "vscode tasks manager",
-    "version": "0.2.0",
+    "version": "1.0.0",
+    "icon": "media/tasklens-icon.png",
     "publisher": "pydemia",
     "repository": {
         "type": "git",

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg7" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2a3050"/>
+      <stop offset="100%" stop-color="#10131e"/>
+    </linearGradient>
+    <linearGradient id="lensRing7" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#cdd6f4"/>
+      <stop offset="100%" stop-color="#6b7a99"/>
+    </linearGradient>
+    <radialGradient id="lensFill7" cx="0.35" cy="0.3" r="0.85">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="doneBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="runBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#9bb8ff"/>
+      <stop offset="100%" stop-color="#4a6fd8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="128" height="128" rx="24" fill="url(#bg7)"/>
+  <rect x="0.5" y="0.5" width="127" height="127" rx="23.5" fill="none" stroke="#ffffff" stroke-opacity="0.06"/>
+
+  <!-- lens -->
+  <circle cx="58" cy="58" r="33" fill="url(#lensFill7)" stroke="url(#lensRing7)" stroke-width="6"/>
+  <path d="M37 48 A 33 33 0 0 1 51 32" stroke="#ffffff" stroke-opacity="0.6" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <line x1="81" y1="81" x2="122" y2="122" stroke="url(#lensRing7)" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- tracks + fills -->
+  <!-- done: full -->
+  <rect x="32" y="38" width="48" height="8" rx="4" fill="#2a3148"/>
+  <rect x="32" y="38" width="48" height="8" rx="4" fill="url(#doneBar)"/>
+
+  <!-- running: ~60% -->
+  <rect x="32" y="56" width="52" height="8" rx="4" fill="#2a3148"/>
+  <rect x="32" y="56" width="32" height="8" rx="4" fill="url(#runBar)"/>
+  <!-- running indicator dot -->
+  <circle cx="64" cy="60" r="5" fill="#9bb8ff">
+    <animate attributeName="opacity" values="1;0.4;1" dur="1.4s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- pending: empty -->
+  <rect x="32" y="74" width="44" height="8" rx="4" fill="#2a3148"/>
+</svg>

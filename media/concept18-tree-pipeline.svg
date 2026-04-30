@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg18" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2a3050"/>
+      <stop offset="100%" stop-color="#10131e"/>
+    </linearGradient>
+    <linearGradient id="termBg18" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1f2e"/>
+      <stop offset="100%" stop-color="#0a0d16"/>
+    </linearGradient>
+    <linearGradient id="lensRing18" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#cdd6f4"/>
+      <stop offset="100%" stop-color="#6b7a99"/>
+    </linearGradient>
+    <radialGradient id="lensFill18" cx="0.35" cy="0.3" r="0.85">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="flow18" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="50%" stop-color="#7aa2ff"/>
+      <stop offset="100%" stop-color="#cdd6f4" stop-opacity="0.5"/>
+    </linearGradient>
+    <filter id="termShadow18" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="3"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.55"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow18" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="128" height="128" fill="url(#bg18)"/>
+
+  <!-- terminal card -->
+  <g filter="url(#termShadow18)">
+    <rect x="14" y="22" width="100" height="74" rx="8" fill="url(#termBg18)" stroke="#3a4258" stroke-width="1.5"/>
+    <circle cx="22" cy="30" r="2.4" fill="#ff6b6b"/>
+    <circle cx="30" cy="30" r="2.4" fill="#fbbf24"/>
+    <circle cx="38" cy="30" r="2.4" fill="#4ade80"/>
+    <line x1="14" y1="36" x2="114" y2="36" stroke="#3a4258" stroke-width="1"/>
+
+    <!-- sibling row: ▶ collapsed group, done -->
+    <path d="M 23 43 L 29 46.5 L 23 50 Z" fill="#cdd6f4" opacity="0.7"/>
+    <line x1="34" y1="46.5" x2="78" y2="46.5" stroke="#cdd6f4" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+    <g transform="translate(86 46.5)">
+      <circle r="4" fill="#4ade80"/>
+      <path d="M -2 0 L -0.5 1.5 L 2 -1.5" stroke="#0f1a12" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- parent row: ▼ npm (expanded) -->
+    <path d="M 23 58 L 30 58 L 26.5 63 Z" fill="#cdd6f4" opacity="0.85"/>
+    <line x1="36" y1="60" x2="74" y2="60" stroke="#cdd6f4" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- branch connector L-shape from parent down to children pipeline rail -->
+    <path d="M 26 66 L 26 76 L 32 76" stroke="#3a4258" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+
+    <!-- children pipeline track -->
+    <line x1="32" y1="76" x2="98" y2="76" stroke="url(#flow18)" stroke-width="3.2" stroke-linecap="round"/>
+
+    <!-- stage 1: watch (done) -->
+    <g transform="translate(36 76)">
+      <circle r="6.5" fill="#4ade80"/>
+      <path d="M -3 0 L -1 2 L 3 -2" stroke="#0f1a12" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- arrow 1 -->
+    <path d="M 48 73 L 52 76 L 48 79" stroke="#cdd6f4" stroke-opacity="0.55" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- stage 2: tsc (running) -->
+    <g transform="translate(64 76)" filter="url(#glow18)">
+      <circle r="8" fill="none" stroke="#2a3148" stroke-width="3"/>
+      <g>
+        <path d="M 0 -8 A 8 8 0 0 1 8 0" stroke="#7aa2ff" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.4s" repeatCount="indefinite"/>
+      </g>
+      <circle r="2.2" fill="#7aa2ff"/>
+    </g>
+
+    <!-- arrow 2 -->
+    <path d="M 80 73 L 84 76 L 80 79" stroke="#cdd6f4" stroke-opacity="0.55" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- stage 3: build (pending) -->
+    <g transform="translate(96 76)" opacity="0.7">
+      <circle r="6" fill="none" stroke="#8a93a8" stroke-width="2"/>
+    </g>
+  </g>
+
+</svg>
