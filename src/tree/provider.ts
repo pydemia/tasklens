@@ -57,8 +57,18 @@ export class TasksTreeProvider
 			node.label,
 			vscode.TreeItemCollapsibleState.None,
 		);
-		item.description = node.task?.definition.type;
-		item.tooltip = node.fullLabel;
+		const taskType = node.task?.definition.type;
+		const detail = node.task?.detail;
+		item.description = detail
+			? `${taskType} — ${detail}`
+			: taskType;
+		if (detail) {
+			const tooltip = new vscode.MarkdownString();
+			tooltip.appendMarkdown(`**${node.fullLabel}**\n\n${detail}`);
+			item.tooltip = tooltip;
+		} else {
+			item.tooltip = node.fullLabel;
+		}
 		item.iconPath = statusIcon(status);
 		const favSuffix = node.favorite ? '.favorite' : '';
 		item.contextValue =
