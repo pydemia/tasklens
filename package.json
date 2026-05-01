@@ -2,9 +2,10 @@
     "name": "tasklens",
     "displayName": "TaskLens — Task Lens for VS Code Tasks",
     "description": "TaskLens (Task Lens): a clean, fast, free task explorer for tasks.json. List, run, re-run, stop, tail, and favorite every VS Code task — Workspace, Global, and Auto-detected (npm, gulp, typescript) — from one panel. A lightweight Task Explorer / Task Manager / Task Runner alternative.",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "icon": "media/tasklens-icon.png",
     "publisher": "pydemia",
+    "license": "Apache-2.0",
     "repository": {
         "type": "git",
         "url": "https://github.com/pydemia/tasklens.git"
