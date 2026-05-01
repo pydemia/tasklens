@@ -3,10 +3,16 @@ import { registerCommands } from './commands';
 import { FavoritesStore } from './favorites/store';
 import { StatusRegistry } from './runner/registry';
 import { refreshNoTasksJsonContext } from './tasksJson';
-import { builtinTaskFilter, workspaceTaskFilter } from './tree/filters';
+import { initTaskScopes, isTaskDefinitionDocument } from './taskScopes';
+import {
+	builtinTaskFilter,
+	globalTaskFilter,
+	workspaceTaskFilter,
+} from './tree/filters';
 import { TasksTreeProvider } from './tree/provider';
 
 export function activate(context: vscode.ExtensionContext): void {
+	initTaskScopes(context);
 	const registry = new StatusRegistry();
 	const favorites = new FavoritesStore(context.workspaceState);
 	const workspaceProvider = new TasksTreeProvider(
@@ -14,16 +20,25 @@ export function activate(context: vscode.ExtensionContext): void {
 		favorites,
 		workspaceTaskFilter,
 	);
+	const globalProvider = new TasksTreeProvider(
+		registry,
+		favorites,
+		globalTaskFilter,
+	);
 	const builtinProvider = new TasksTreeProvider(
 		registry,
 		favorites,
 		builtinTaskFilter,
 	);
-	const providers = [workspaceProvider, builtinProvider];
+	const providers = [workspaceProvider, globalProvider, builtinProvider];
 	const reloadAll = () => providers.forEach(p => p.reload());
 
 	const workspaceView = vscode.window.createTreeView('tasklens.workspace', {
 		treeDataProvider: workspaceProvider,
+		showCollapseAll: true,
+	});
+	const globalView = vscode.window.createTreeView('tasklens.global', {
+		treeDataProvider: globalProvider,
 		showCollapseAll: true,
 	});
 	const builtinView = vscode.window.createTreeView('tasklens.builtin', {
@@ -48,14 +63,16 @@ export function activate(context: vscode.ExtensionContext): void {
 		registry,
 		favorites,
 		workspaceProvider,
+		globalProvider,
 		builtinProvider,
 		workspaceView,
+		globalView,
 		builtinView,
 		tasksJsonWatcher,
 		tasksJsonWatcher.onDidCreate(onTasksJsonExistenceChanged),
 		tasksJsonWatcher.onDidDelete(onTasksJsonExistenceChanged),
 		vscode.workspace.onDidSaveTextDocument(doc => {
-			if (matchesTasksJson(doc.uri.path)) {
+			if (isTaskDefinitionDocument(doc.uri)) {
 				reloadAll();
 			}
 		}),
@@ -74,7 +91,3 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {}
-
-function matchesTasksJson(path: string): boolean {
-	return path.endsWith('/.vscode/tasks.json');
-}

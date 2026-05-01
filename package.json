@@ -2,7 +2,7 @@
     "name": "tasklens",
     "displayName": "TaskLens",
     "description": "vscode tasks manager",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "icon": "media/tasklens-icon.png",
     "publisher": "pydemia",
     "repository": {
@@ -36,6 +36,10 @@
                 {
                     "id": "tasklens.workspace",
                     "name": "Workspace"
+                },
+                {
+                    "id": "tasklens.global",
+                    "name": "Global"
                 },
                 {
                     "id": "tasklens.builtin",
@@ -115,64 +119,64 @@
             "view/title": [
                 {
                     "command": "tasklens.reload",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/",
                     "group": "navigation"
                 }
             ],
             "view/item/context": [
                 {
                     "command": "tasklens.runTask",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task(\\.favorite)?$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task(\\.favorite)?$/",
                     "group": "inline@1"
                 },
                 {
                     "command": "tasklens.stopTask",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
                     "group": "inline@1"
                 },
                 {
                     "command": "tasklens.tailLogs",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
                     "group": "inline@2"
                 },
                 {
                     "command": "tasklens.addFavorite",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task(\\.running)?$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task(\\.running)?$/",
                     "group": "inline@3"
                 },
                 {
                     "command": "tasklens.removeFavorite",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /\\.favorite$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /\\.favorite$/",
                     "group": "inline@3"
                 },
                 {
                     "command": "tasklens.rerunTask",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task/",
                     "group": "1_run@1"
                 },
                 {
                     "command": "tasklens.stopTask",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
                     "group": "1_run@2"
                 },
                 {
                     "command": "tasklens.tailLogs",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
                     "group": "2_logs@1"
                 },
                 {
                     "command": "tasklens.addFavorite",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task(\\.running)?$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task(\\.running)?$/",
                     "group": "3_nav@1"
                 },
                 {
                     "command": "tasklens.removeFavorite",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /\\.favorite$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /\\.favorite$/",
                     "group": "3_nav@1"
                 },
                 {
                     "command": "tasklens.revealDefinition",
-                    "when": "view =~ /^tasklens\\.(workspace|builtin)$/ && viewItem =~ /^task/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task/",
                     "group": "3_nav@2"
                 }
             ],

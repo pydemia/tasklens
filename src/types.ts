@@ -14,6 +14,7 @@ export interface TaskNode {
 	folderName?: string;
 	favorite?: boolean;
 	favoritesGroup?: boolean;
+	placeholder?: boolean;
 }
 
 export function taskKey(task: vscode.Task): TaskKey {
