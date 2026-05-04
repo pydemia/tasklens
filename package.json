@@ -1,8 +1,8 @@
 {
     "name": "tasklens",
     "displayName": "TaskLens — Task Lens for VS Code Tasks",
-    "description": "TaskLens (Task Lens): a clean, fast, free task explorer for tasks.json. List, run, re-run, stop, tail, and favorite every VS Code task — Workspace, Global, and Auto-detected (npm, gulp, typescript) — from one panel. A lightweight Task Explorer / Task Manager / Task Runner alternative.",
-    "version": "1.0.3",
+    "description": "TaskLens (Task Lens): a clean, fast, free task panel for tasks.json. List, run, re-run, stop, tail, and favorite every VS Code task — Workspace, Global, and Auto-detected (npm, gulp, typescript) — from one panel.",
+    "version": "1.0.4",
     "icon": "media/tasklens-icon.png",
     "publisher": "pydemia",
     "license": "Apache-2.0",
@@ -23,8 +23,6 @@
     "keywords": [
         "task lens",
         "tasklens",
-        "task explorer",
-        "task manager",
         "task runner",
         "task launcher",
         "task viewer",
@@ -40,9 +38,7 @@
         ".vscode",
         "vscode tasks",
         "vs code tasks",
-        "vscode task explorer",
         "vscode task runner",
-        "vscode task manager",
         "scripts explorer",
         "scripts runner",
         "script runner",
@@ -103,6 +99,10 @@
                 {
                     "id": "tasklens.builtin",
                     "name": "Auto-detected"
+                },
+                {
+                    "id": "tasklens.history",
+                    "name": "History"
                 }
             ]
         },
@@ -160,6 +160,12 @@
                 "title": "Remove from Favorites",
                 "category": "Tasklens",
                 "icon": "$(star-full)"
+            },
+            {
+                "command": "tasklens.clearHistory",
+                "title": "Clear Run History",
+                "category": "Tasklens",
+                "icon": "$(clear-all)"
             }
         ],
         "viewsWelcome": [
@@ -179,6 +185,11 @@
                 {
                     "command": "tasklens.reload",
                     "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/",
+                    "group": "navigation"
+                },
+                {
+                    "command": "tasklens.clearHistory",
+                    "when": "view == tasklens.history",
                     "group": "navigation"
                 }
             ],

@@ -1,13 +1,13 @@
 # TaskLens — Visual Task Runner for VS Code
 
-> A clean, fast, free-forever task explorer for `tasks.json`. List, run, re-run, stop, tail, favorite, and jump-to-definition for every VS Code task — Workspace, Global (User), and Auto-detected — from one activity-bar panel.
+> A clean, fast, free-forever task panel for `tasks.json`. List, run, re-run, stop, tail, favorite, and jump-to-definition for every VS Code task — Workspace, Global (User), and Auto-detected — from one activity-bar panel.
 
 [![Visual Studio Marketplace](https://img.shields.io/visual-studio-marketplace/v/pydemia.tasklens?label=Marketplace)](https://marketplace.visualstudio.com/items?itemName=pydemia.tasklens)
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/pydemia.tasklens)](https://marketplace.visualstudio.com/items?itemName=pydemia.tasklens)
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/pydemia.tasklens)](https://marketplace.visualstudio.com/items?itemName=pydemia.tasklens&ssr=false#review-details)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-If you came here looking for **Task Explorer**, **Task Manager**, or a replacement for **NPM Scripts** — you're in the right place. TaskLens is the lightweight alternative: zero telemetry, zero license gates, zero output-buffering CPU spikes, ~200 KB bundled. It uses the **native VS Code Tasks API** (`vscode.tasks.fetchTasks()`) so it sees every task that VS Code sees — npm, gulp, grunt, typescript, and your own `tasks.json` — without re-implementing a single provider.
+TaskLens is a lightweight task panel for people who want quick access to VS Code tasks without extra runtime machinery: zero telemetry, no license gates, no output-buffering CPU spikes, ~200 KB bundled. It uses the **native VS Code Tasks API** (`vscode.tasks.fetchTasks()`) so it sees every task that VS Code sees — npm, gulp, grunt, typescript, and your own `tasks.json` — without re-implementing a single provider.
 
 ---
 
@@ -26,7 +26,6 @@ If you came here looking for **Task Explorer**, **Task Manager**, or a replaceme
 - [Commands Reference](#commands-reference)
 - [Multi-root Workspaces](#multi-root-workspaces)
 - [FAQ](#faq)
-- [Comparison with Task Explorer](#comparison-with-task-explorer)
 - [Architecture](#architecture)
 - [Contributing & Development](#contributing--development)
 - [License](#license)
@@ -336,32 +335,6 @@ Yes. The `Global` view shows tasks from your user-level `tasks.json` (open via `
 
 ---
 
-## Comparison with Task Explorer
-
-If you're migrating from **Task Explorer**, here's what changes:
-
-| Feature | Task Explorer | TaskLens |
-|---|---|---|
-| **License model** | Preview → paid license post-Preview | MIT, free forever |
-| **Bundle size** | Multi-megabyte (custom webviews, icons, monitor UI) | ~200 KB |
-| **Task discovery** | Custom providers per language (npm, ant, gulp, tsc, bash, …) | `vscode.tasks.fetchTasks()` — uses VS Code's |
-| **Output rendering** | Webview "Task Monitor" with custom rendering | Reveals VS Code's native terminal — full ANSI, no buffering |
-| **Telemetry / encryption** | Optional encrypted persistence, runtime tracking | None |
-| **Animated icons** | Configurable (CPU-heavy on some systems) | Native `ThemeIcon` — renderer-optimized |
-| **JSON parsing** | Custom parser per task type | `jsonc-parser` for `tasks.json` reveal |
-| **Group separator** | Default `-` | Default `::` (configurable; set to `-` to match) |
-| **Favorites** | ✅ | ✅ |
-| **Multi-root** | ✅ | ✅ |
-| **Task debugging** | ✅ | ❌ (use `launch.json`) |
-| **Excludes/globs config** | ✅ (per task type) | ❌ (delegated to VS Code's per-language autodetect settings) |
-| **Min VS Code version** | 1.102+ | 1.117+ |
-
-**TaskLens is the right choice if** you want a focused panel that trusts VS Code's task system, works offline, and never asks for a license. **Task Explorer is the right choice if** you need its custom Task Monitor webview, per-task-type exclude globs, or its built-in task debugging.
-
-To migrate: install TaskLens, set `"tasklens.groupSeparator": "-"` if you relied on dash grouping, and uninstall Task Explorer when ready.
-
----
-
 ## Architecture
 
 For the load-bearing reference on **how TaskLens is built** — module layout, data model, status registry, log-tailing strategy, JSONC reveal-definition, multi-root scoping, and resolved design decisions — see [BLUEPRINT.md](BLUEPRINT.md).
@@ -429,4 +402,4 @@ These are **VS Code settings**, not TaskLens settings — they affect every task
 
 ## Keywords
 
-task explorer, task manager, task runner, tasks.json, npm scripts, gulp, grunt, typescript build, vscode tasks, task monitor, task tree, task panel, run task, build task, test task, task hierarchy, favorites, task favorites, vscode extension, free task explorer, lightweight task explorer, task explorer alternative
+task, tasks, task panel, task runner, tasks.json, npm scripts, gulp, grunt, typescript build, vscode tasks, task tree, task sidebar, run task, build task, test task, task hierarchy, favorites, task favorites, pinned tasks, vscode extension, lightweight task tools

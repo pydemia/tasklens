@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import type { FavoritesStore } from './favorites/store';
+import type { HistoryStore } from './history/store';
 import { locateTaskInJsonc } from './jsonc/locate';
 import { focusTaskTerminal } from './logs/focus';
 import { rerunTask, runTask, stopTask } from './runner/execute';
@@ -13,6 +14,7 @@ export function registerCommands(
 	providers: TasksTreeProvider[],
 	registry: StatusRegistry,
 	favorites: FavoritesStore,
+	history: HistoryStore,
 ): void {
 	const reloadAll = () => providers.forEach(p => p.reload());
 	context.subscriptions.push(
@@ -92,6 +94,16 @@ export function registerCommands(
 				await revealTaskDefinition(task);
 			},
 		),
+		vscode.commands.registerCommand('tasklens.clearHistory', async () => {
+			const choice = await vscode.window.showWarningMessage(
+				'Clear all task run history?',
+				{ modal: true },
+				'Clear',
+			);
+			if (choice === 'Clear') {
+				await history.clear();
+			}
+		}),
 	);
 }
 
