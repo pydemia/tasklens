@@ -402,4 +402,4 @@ These are **VS Code settings**, not TaskLens settings — they affect every task
 
 ## Keywords
 
-task, tasks, task panel, task runner, tasks.json, npm scripts, gulp, grunt, typescript build, vscode tasks, task tree, task sidebar, run task, build task, test task, task hierarchy, favorites, task favorites, pinned tasks, vscode extension, lightweight task tools
+task, tasks, runner, run, shell, script, test, build
