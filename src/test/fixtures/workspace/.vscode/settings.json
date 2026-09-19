@@ -1,0 +1,5 @@
+{
+  "tasklens.confirmRerunIfRunning": false,
+  "task.allowAutomaticTasks": "off",
+  "terminal.integrated.enablePersistentSessions": false
+}

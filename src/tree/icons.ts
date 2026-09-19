@@ -19,6 +19,10 @@ export function statusIcon(status: TaskStatus): vscode.ThemeIcon | undefined {
 				'error',
 				new vscode.ThemeColor('charts.red'),
 			);
+		case 'stopped':
+			return new vscode.ThemeIcon('debug-stop', new vscode.ThemeColor('charts.yellow'));
+		case 'ended':
+			return new vscode.ThemeIcon('question', new vscode.ThemeColor('descriptionForeground'));
 		case 'idle':
 		default:
 			return undefined;

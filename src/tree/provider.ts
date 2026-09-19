@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { taskKey, type TaskNode } from '../types';
 import type { StatusRegistry } from '../runner/registry';
 import type { FavoritesStore } from '../favorites/store';
-import { refreshTaskScopes } from '../taskScopes';
+import type { TaskCatalog } from '../taskCatalog';
 import { buildTree, type GroupableTask } from './group';
 import {
 	favoritesIcon,
@@ -25,22 +25,22 @@ export class TasksTreeProvider
 	>();
 	readonly onDidChangeTreeData = this._onDidChange.event;
 
-	private cache: TaskNode[] = [];
-	private fetchPromise: Promise<TaskNode[]> | undefined;
 	private readonly registrySub: vscode.Disposable;
 	private readonly favoritesSub: vscode.Disposable;
+	private readonly catalogSub: vscode.Disposable;
 
 	constructor(
 		private readonly registry: StatusRegistry,
 		private readonly favorites: FavoritesStore,
 		private readonly filter: TaskFilter,
+		private readonly catalog: TaskCatalog,
 	) {
 		this.registrySub = registry.onChange(() => this._onDidChange.fire());
 		this.favoritesSub = favorites.onDidChange(() => this.reload());
+		this.catalogSub = catalog.onDidChange(() => this.reload());
 	}
 
 	reload(): void {
-		this.fetchPromise = undefined;
 		this._onDidChange.fire();
 	}
 
@@ -53,6 +53,7 @@ export class TasksTreeProvider
 				label,
 				vscode.TreeItemCollapsibleState.Expanded,
 			);
+			item.id = node.id;
 			if (node.favoritesGroup) {
 				item.iconPath = favoritesIcon;
 				item.contextValue = 'group.favorites';
@@ -79,6 +80,10 @@ export class TasksTreeProvider
 			);
 			item.contextValue = 'placeholder';
 			item.tooltip = node.label;
+			if (node.retry) {
+				item.iconPath = new vscode.ThemeIcon('warning');
+				item.command = { command: 'tasklens.reload', title: 'Retry Loading Tasks' };
+			}
 			return item;
 		}
 
@@ -91,16 +96,12 @@ export class TasksTreeProvider
 		);
 		const taskType = node.task?.definition.type;
 		const detail = node.task?.detail;
-		item.description = detail
-			? `${taskType} — ${detail}`
-			: taskType;
-		if (detail) {
-			const tooltip = new vscode.MarkdownString();
-			tooltip.appendMarkdown(`**${node.fullLabel}**\n\n${detail}`);
-			item.tooltip = tooltip;
-		} else {
-			item.tooltip = node.fullLabel;
-		}
+		item.id = node.id;
+		const run = node.key ? this.registry.getLastRun(node.key) : undefined;
+		const statusText = status === 'ended' ? 'Ended (exit code unavailable)'
+			: status.charAt(0).toUpperCase() + status.slice(1);
+		item.description = [status === 'idle' ? undefined : statusText, taskType, detail].filter(Boolean).join(' · ');
+		item.tooltip = [node.fullLabel, statusText + (run?.exitCode !== undefined ? ` (exit ${run.exitCode})` : ''), detail].filter(Boolean).join('\n');
 		if (node.task) {
 			item.resourceUri = taskResourceUri(node.task);
 		}
@@ -122,16 +123,11 @@ export class TasksTreeProvider
 		if (element) {
 			return element.children;
 		}
-		if (!this.fetchPromise) {
-			this.fetchPromise = this.fetchAndBuild();
-		}
-		this.cache = await this.fetchPromise;
-		return this.cache;
+		return this.fetchAndBuild();
 	}
 
 	private async fetchAndBuild(): Promise<TaskNode[]> {
-		await refreshTaskScopes();
-		const all = await vscode.tasks.fetchTasks();
+		const all = await this.catalog.getTasks();
 		const tasks = all.filter(this.filter);
 		const separator = vscode.workspace
 			.getConfiguration('tasklens')
@@ -143,21 +139,29 @@ export class TasksTreeProvider
 				? this.groupByFolder(tasks, folders, separator)
 				: buildTree(tasks.map(t => this.toGroupable(t)), separator);
 
-		return [this.buildFavoritesGroup(tasks), ...main];
+		const favorites = this.buildFavoritesGroup(tasks);
+		const roots = favorites.children.length > 0 ? [favorites, ...main] : main;
+		if (this.catalog.error) {
+			roots.unshift({ kind: 'task', label: `Could not load tasks: ${this.catalog.error} — click to retry`, placeholder: true, retry: true, children: [] });
+		}
+		this.assignIds(roots, 'root');
+		return roots;
+	}
+
+	private assignIds(nodes: TaskNode[], parent: string): void {
+		for (const node of nodes) {
+			node.id ??= node.kind === 'task' && node.key
+				? `${parent}/task:${node.key}`
+				: `${parent}/${node.favoritesGroup ? 'favorites' : 'group'}:${encodeURIComponent(node.label)}`;
+			this.assignIds(node.children, node.id);
+		}
 	}
 
 	private buildFavoritesGroup(tasks: vscode.Task[]): TaskNode {
 		const favTasks = tasks.filter(t => this.favorites.has(taskKey(t)));
 		const children: TaskNode[] =
 			favTasks.length === 0
-				? [
-						{
-							kind: 'task',
-							label: 'No favorites yet — right-click a task to add',
-							placeholder: true,
-							children: [],
-						},
-					]
+				? []
 				: favTasks.map(t => ({
 						kind: 'task',
 						label: t.name,
@@ -206,6 +210,7 @@ export class TasksTreeProvider
 				continue;
 			}
 			result.push({
+				id: `folder:${folder.uri.toString()}`,
 				kind: 'group',
 				label: folder.name,
 				folderName: folder.name,
@@ -245,6 +250,7 @@ export class TasksTreeProvider
 	dispose(): void {
 		this.registrySub.dispose();
 		this.favoritesSub.dispose();
+		this.catalogSub.dispose();
 		this._onDidChange.dispose();
 	}
 }

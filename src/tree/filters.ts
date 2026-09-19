@@ -9,4 +9,4 @@ export const workspaceTaskFilter: TaskFilter = isWorkspaceScoped;
 export const globalTaskFilter: TaskFilter = isGlobalScoped;
 
 export const builtinTaskFilter: TaskFilter = (task: vscode.Task) =>
-	task.source !== WORKSPACE_SOURCE;
+	task.source !== WORKSPACE_SOURCE && !isGlobalScoped(task);

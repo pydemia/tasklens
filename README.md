@@ -5,9 +5,9 @@
 [![Visual Studio Marketplace](https://img.shields.io/visual-studio-marketplace/v/pydemia.tasklens?label=Marketplace)](https://marketplace.visualstudio.com/items?itemName=pydemia.tasklens)
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/pydemia.tasklens)](https://marketplace.visualstudio.com/items?itemName=pydemia.tasklens)
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/pydemia.tasklens)](https://marketplace.visualstudio.com/items?itemName=pydemia.tasklens&ssr=false#review-details)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 
-TaskLens is a lightweight task panel for people who want quick access to VS Code tasks without extra runtime machinery: zero telemetry, no license gates, no output-buffering CPU spikes, ~200 KB bundled. It uses the **native VS Code Tasks API** (`vscode.tasks.fetchTasks()`) so it sees every task that VS Code sees — npm, gulp, grunt, typescript, and your own `tasks.json` — without re-implementing a single provider.
+TaskLens is a lightweight task panel for people who want quick access to VS Code tasks without extra runtime machinery: zero telemetry, no license gates, no output-buffering CPU spikes, bundled with esbuild. It uses the **native VS Code Tasks API** (`vscode.tasks.fetchTasks()`) so it sees every task that VS Code sees — npm, gulp, grunt, typescript, and your own `tasks.json` — without re-implementing a single provider.
 
 ---
 
@@ -34,16 +34,9 @@ TaskLens is a lightweight task panel for people who want quick access to VS Code
 
 ## Why TaskLens
 
-VS Code ships a `Tasks: Run Task` palette and a small auto-detected list, but neither is a navigable surface. The marketplace alternatives either re-implement every task provider from scratch (slow, brittle, license-gated) or buffer task output into custom webviews (CPU-hungry, divergent from your real terminal).
+TaskLens keeps tasks visible while you work: grouped labels, favorites, current results, and run history in VS Code's native sidebar. It uses the Tasks API for discovery and execution and opens the existing integrated terminal when you want to inspect output.
 
-**TaskLens takes a different bet:** trust the platform.
-
-- **Native fetch.** Tasks come from `vscode.tasks.fetchTasks()` — every contributed provider VS Code knows about is included. No npm provider to reinvent. No gulp parser to maintain.
-- **Native terminal.** "Tail logs" reveals the integrated terminal VS Code already gave the task. No `OutputChannel`, no `shellIntegration`, no per-task buffer in memory.
-- **Native theming.** Status icons are `ThemeIcon`s — they match your color theme automatically. No animated GIFs eating CPU.
-- **Native JSONC.** Reveal-definition uses `jsonc-parser` so comments and trailing commas in `tasks.json` are first-class.
-
-The result: a focused panel that does the eight things you actually do with tasks, and nothing else.
+The **Find and Run Task** command searches all discovered tasks, with favorites first. Selecting an already-running task opens its terminal. Completed history entries have a re-run action.
 
 ---
 
@@ -82,22 +75,24 @@ Every task row shows an icon for its current state:
 | ⚪ idle | Not running |
 | 🔵 spinner | Running |
 | ✅ green check | Last run succeeded |
-| ❌ red error | Last run failed |
+| ❌ red error | Nonzero exit code |
+| Yellow stop | Task was terminated |
+| Neutral question mark | Task ended without an exit code |
 
-State updates fire on `vscode.tasks.onDidStartTask` / `onDidEndTask` / `onDidEndTaskProcess` — accurate within a single event loop tick of the task changing.
+Process exits update the result immediately. TaskLens restores active executions when it starts and reconciles missing lifecycle events while tasks are running. An unavailable exit code is shown as an unknown result, without claiming success or failure.
 
 ### Inline & context actions
 
 - **▶ Run** — execute the task.
 - **⏹ Stop** — terminate a running task.
 - **🔁 Re-run** — terminate the in-flight execution (with optional confirm), wait for it to end, then start fresh.
-- **🖥 Show Terminal** — reveal the integrated terminal hosting the running task.
+- **🖥 Show Terminal** — reveal the task terminal, including completed runs whose terminal is still open.
 - **★ / ☆ Favorite** — toggle favorite state.
 - **➔ Reveal Definition** — open `tasks.json` and select the matching task object (JSONC-aware).
 
 ### Auto-reload on save
 
-Saving `tasks.json` refreshes both views. Manual `Reload Tasks` button is available in the view title bar for external edits or contributed-task changes.
+Saving `tasks.json`, the workspace file, or `package.json` refreshes the shared task list. Reload Tasks is available in each task view and the palette for external edits or provider changes. Loading failures keep the previous list visible and show a retry action.
 
 ### Empty-state CTAs
 
@@ -205,30 +200,21 @@ If the task is not running, re-run is just run.
 
 ### Stop
 
-Calls `terminate()` on the live `TaskExecution`. If the task isn't running anymore (race condition), shows an info message.
+Stops the live executions of the selected task and waits for termination. Repeated clicks do not launch concurrent run or restart requests.
 
 ### Tail (Show Terminal)
 
-VS Code already runs every task in a dedicated terminal whose name embeds the task label. TaskLens scans `vscode.window.terminals`:
+Show Task Terminal opens an existing integrated terminal. It works after completion while the terminal remains available. TaskLens prefers exact task-name matches, then known task terminal naming patterns. If several terminals match, it asks you to choose.
 
-1. Exact name match against `task.name`.
-2. Substring match (`terminal.name.includes(task.name)`).
-3. Calls `terminal.show(false)` to reveal and focus it.
-
-If no terminal matches (the task ended, or the task uses `presentation.reveal: never`), shows an info message. **No output is captured or buffered** — your terminal is the source of truth, with full ANSI colors, scrollback, and shell integration intact.
+VS Code does not expose a public Task-to-Terminal mapping, and shared terminals may be reused by another task. If no terminal matches, TaskLens shows a notice. No output is captured or buffered.
 
 ---
 
 ## Reveal Definition (JSONC-aware)
 
-Click any task row's label (or use the context menu) to open `tasks.json` with the task's object selected. Under the hood:
+Click a task label or choose Reveal Definition to select its task object. Folder tasks open their own `.vscode/tasks.json`; user tasks open user `tasks.json`; workspace-file tasks open the `.code-workspace` file. JSONC comments and trailing commas are supported.
 
-1. Resolves the owning `WorkspaceFolder` from `task.scope`.
-2. Opens `<folder>/.vscode/tasks.json`.
-3. Uses `jsonc-parser`'s `parseTree` + `findNodeAtLocation` to walk `$.tasks[*].label` and find the byte range of the first matching task object.
-4. Reveals + selects the range.
-
-Comments and trailing commas in `tasks.json` are handled correctly — they're allowed by the JSONC spec, and TaskLens parses accordingly. Contributed tasks (npm, tsc, …) that aren't in `tasks.json` open the file with an info message instead.
+A task without a matching definition shows a notice. TaskLens does not fall back to another folder's task file.
 
 ---
 
@@ -249,11 +235,14 @@ All commands are namespaced `tasklens.*`. Per-task commands are hidden from the 
 
 | Command | Title | Where |
 |---|---|---|
+| `tasklens.quickRun` | Find and Run Task | View title bar, palette |
+| `tasklens.rerunHistory` | Re-run Task | History row |
+| `tasklens.clearHistory` | Clear Run History | History title bar, palette |
 | `tasklens.reload` | Reload Tasks | View title bar, palette |
 | `tasklens.createTasksJson` | Create tasks.json | Welcome view, palette |
 | `tasklens.runTask` | Run Task | Inline ▶ on idle tasks |
 | `tasklens.stopTask` | Stop Task | Inline ⏹ on running tasks |
-| `tasklens.tailLogs` | Show Task Terminal | Inline 🖥 on running tasks |
+| `tasklens.tailLogs` | Show Task Terminal | Inline 🖥 on any task |
 | `tasklens.rerunTask` | Re-run Task | Context menu |
 | `tasklens.addFavorite` | Add to Favorites | Inline ☆ / context menu (un-favorited) |
 | `tasklens.removeFavorite` | Remove from Favorites | Inline ★ / context menu (favorited) |
@@ -277,7 +266,7 @@ Single-folder workspaces render flat — no folder bucket overhead.
 
 ### Will TaskLens ever require a license, paid tier, or trial activation?
 
-**No.** TaskLens is MIT-licensed, free forever, no preview phase, no "unlock all features" upsell. The whole codebase ships in `dist/extension.js` — there is no server, no key check, no gated functionality.
+**No.** TaskLens is Apache-2.0-licensed, free forever, no preview phase, no "unlock all features" upsell. The whole codebase ships in `dist/extension.js` — there is no server, no key check, no gated functionality.
 
 ### Why do I need to install TaskLens if VS Code already has `Tasks: Run Task`?
 
@@ -341,9 +330,9 @@ For the load-bearing reference on **how TaskLens is built** — module layout, d
 
 Highlights:
 
-- **Pure modules** for grouping ([src/tree/group.ts](src/tree/group.ts)), JSONC location ([src/jsonc/locate.ts](src/jsonc/locate.ts)), and favorites ([src/favorites/store.ts](src/favorites/store.ts)) — no `vscode` import, unit-testable with Mocha alone.
-- **Single status registry** ([src/runner/registry.ts](src/runner/registry.ts)) is the source of truth for "is this task running"; both views subscribe to one event emitter.
-- **No `*` activation event.** TaskLens activates on first reveal of its view or first invocation of a `tasklens.*` command.
+- **Pure modules** for grouping ([src/tree/group.ts](src/tree/group.ts)), JSONC location ([src/jsonc/locate.ts](src/jsonc/locate.ts)), — no runtime `vscode` import, unit-testable with Mocha alone.
+- **Single status registry** ([src/runner/registry.ts](src/runner/registry.ts)) is the source of truth for "is this task running"; all task views subscribe to one event emitter.
+- **Startup tracking, lazy discovery.** TaskLens starts tracking lifecycle events after VS Code startup. Task discovery waits until a view or command needs the list.
 - **esbuild bundle** with `mainFields: ['module', 'main']` to fully bundle `jsonc-parser` (avoids its UMD dynamic-require runtime crash).
 
 ---
@@ -369,7 +358,7 @@ src/
   types.ts           # TaskKey, TaskStatus, TaskNode
   tree/              # TreeDataProvider, filters, grouping, icons
   runner/            # registry + execute (run/rerun/stop)
-  logs/              # terminal focus
+  terminal/          # terminal focus
   jsonc/             # tasks.json JSONC parsing
   favorites/         # Memento-backed favorites store
   test/              # unit + smoke tests
@@ -396,7 +385,7 @@ These are **VS Code settings**, not TaskLens settings — they affect every task
 
 ## License
 
-[MIT](LICENSE) © pydemia. Free forever, no strings attached.
+[Apache License 2.0](LICENSE) © pydemia.
 
 ---
 

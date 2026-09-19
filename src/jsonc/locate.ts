@@ -5,12 +5,12 @@ export interface JsoncRange {
 	length: number;
 }
 
-export function locateTaskInJsonc(text: string, label: string): JsoncRange | null {
+export function locateTaskInJsonc(text: string, label: string, workspaceFile = false): JsoncRange | null {
 	const root = parseTree(text);
 	if (!root) {
 		return null;
 	}
-	const tasksNode = findNodeAtLocation(root, ['tasks']);
+	const tasksNode = findNodeAtLocation(root, workspaceFile ? ['tasks', 'tasks'] : ['tasks']);
 	if (!tasksNode || tasksNode.type !== 'array' || !tasksNode.children) {
 		return null;
 	}

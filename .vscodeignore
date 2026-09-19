@@ -16,3 +16,8 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+.agents/**
+AGENTS.md
+.yarn/**
+.github/**
+BLUEPRINT.md

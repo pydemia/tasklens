@@ -2,9 +2,10 @@ import * as vscode from 'vscode';
 
 export type TaskKey = string;
 
-export type TaskStatus = 'idle' | 'running' | 'succeeded' | 'failed';
+export type TaskStatus = 'idle' | 'running' | 'succeeded' | 'failed' | 'stopped' | 'ended';
 
 export interface TaskNode {
+	id?: string;
 	kind: 'group' | 'task';
 	label: string;
 	children: TaskNode[];
@@ -15,6 +16,7 @@ export interface TaskNode {
 	favorite?: boolean;
 	favoritesGroup?: boolean;
 	placeholder?: boolean;
+	retry?: boolean;
 }
 
 export function taskKey(task: vscode.Task): TaskKey {

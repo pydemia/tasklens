@@ -1,8 +1,8 @@
 {
     "name": "tasklens",
-    "displayName": "TaskLens — Task Lens for VS Code Tasks",
-    "description": "TaskLens (Task Lens): a clean, fast, free task panel for tasks.json. List, run, re-run, stop, tail, and favorite every VS Code task — Workspace, Global, and Auto-detected (npm, gulp, typescript) — from one panel.",
-    "version": "1.0.5",
+    "displayName": "TaskLens \u2014 Task Lens for VS Code Tasks",
+    "description": "TaskLens (Task Lens): a clean, fast, free task panel for tasks.json. List, run, re-run, stop, tail, and favorite every VS Code task \u2014 Workspace, Global, and Auto-detected (npm, gulp, typescript) \u2014 from one panel.",
+    "version": "1.1.0",
     "icon": "media/tasklens-icon.png",
     "publisher": "pydemia",
     "license": "Apache-2.0",
@@ -33,7 +33,9 @@
         "test",
         "build"
     ],
-    "activationEvents": [],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
     "main": "./dist/extension.js",
     "contributes": {
         "viewsContainers": {
@@ -125,6 +127,18 @@
                 "title": "Clear Run History",
                 "category": "Tasklens",
                 "icon": "$(clear-all)"
+            },
+            {
+                "command": "tasklens.quickRun",
+                "title": "Find and Run Task",
+                "category": "Tasklens",
+                "icon": "$(search)"
+            },
+            {
+                "command": "tasklens.rerunHistory",
+                "title": "Re-run Task",
+                "category": "Tasklens",
+                "icon": "$(debug-restart)"
             }
         ],
         "viewsWelcome": [
@@ -137,6 +151,19 @@
                 "view": "tasklens.workspace",
                 "contents": "No tasks.json found in this workspace.\n[Create tasks.json](command:tasklens.createTasksJson)\nDefine build, test, and run commands for this project. [Learn more](https://code.visualstudio.com/docs/editor/tasks).",
                 "when": "tasklens.noTasksJson && workbenchState != empty"
+            },
+            {
+                "view": "tasklens.workspace",
+                "contents": "No workspace tasks found.\n[Reload Tasks](command:tasklens.reload) \u00b7 [Create tasks.json](command:tasklens.createTasksJson)",
+                "when": "!tasklens.noTasksJson && workbenchState != empty"
+            },
+            {
+                "view": "tasklens.global",
+                "contents": "No user tasks found.\n[Open User Tasks](command:workbench.action.tasks.openUserTasks)"
+            },
+            {
+                "view": "tasklens.builtin",
+                "contents": "No auto-detected tasks found.\n[Reload Tasks](command:tasklens.reload)"
             }
         ],
         "menus": {
@@ -150,6 +177,11 @@
                     "command": "tasklens.clearHistory",
                     "when": "view == tasklens.history",
                     "group": "navigation"
+                },
+                {
+                    "command": "tasklens.quickRun",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/",
+                    "group": "navigation@0"
                 }
             ],
             "view/item/context": [
@@ -165,7 +197,7 @@
                 },
                 {
                     "command": "tasklens.tailLogs",
-                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task/",
                     "group": "inline@2"
                 },
                 {
@@ -190,7 +222,7 @@
                 },
                 {
                     "command": "tasklens.tailLogs",
-                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task\\.running(\\.favorite)?$/",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task/",
                     "group": "2_logs@1"
                 },
                 {
@@ -207,6 +239,11 @@
                     "command": "tasklens.revealDefinition",
                     "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/ && viewItem =~ /^task/",
                     "group": "3_nav@2"
+                },
+                {
+                    "command": "tasklens.rerunHistory",
+                    "when": "view == tasklens.history && viewItem =~ /^history\\.run/",
+                    "group": "inline@1"
                 }
             ],
             "commandPalette": [
@@ -236,6 +273,10 @@
                 },
                 {
                     "command": "tasklens.removeFavorite",
+                    "when": "false"
+                },
+                {
+                    "command": "tasklens.rerunHistory",
                     "when": "false"
                 }
             ]

@@ -19,6 +19,10 @@ const SAMPLE = `{
 `;
 
 suite('locateTaskInJsonc', () => {
+	test('locates task definitions embedded in a code-workspace file', () => {
+		const text = '{"folders":[],"tasks":' + SAMPLE + '}';
+		assert.ok(locateTaskInJsonc(text, 'watch', true));
+	});
 	test('returns range of the matching task object', () => {
 		const range = locateTaskInJsonc(SAMPLE, 'npm: watch:tsc');
 		assert.ok(range, 'expected a range');

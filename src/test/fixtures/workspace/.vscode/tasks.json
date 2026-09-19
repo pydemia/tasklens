@@ -1,0 +1,98 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "test::success",
+      "type": "shell",
+      "command": "echo tasklens-success",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "panel": "dedicated"
+      },
+      "osx": {
+        "options": {
+          "shell": {
+            "executable": "/bin/sh",
+            "args": [
+              "-c"
+            ]
+          }
+        }
+      },
+      "linux": {
+        "options": {
+          "shell": {
+            "executable": "/bin/sh",
+            "args": [
+              "-c"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "label": "test::failure",
+      "type": "shell",
+      "command": "exit 7",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "panel": "dedicated"
+      },
+      "osx": {
+        "options": {
+          "shell": {
+            "executable": "/bin/sh",
+            "args": [
+              "-c"
+            ]
+          }
+        }
+      },
+      "linux": {
+        "options": {
+          "shell": {
+            "executable": "/bin/sh",
+            "args": [
+              "-c"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "label": "test::long",
+      "type": "shell",
+      "command": "sleep 60",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "panel": "dedicated"
+      },
+      "osx": {
+        "options": {
+          "shell": {
+            "executable": "/bin/sh",
+            "args": [
+              "-c"
+            ]
+          }
+        }
+      },
+      "linux": {
+        "options": {
+          "shell": {
+            "executable": "/bin/sh",
+            "args": [
+              "-c"
+            ]
+          }
+        }
+      },
+      "windows": {
+        "command": "ping -n 60 127.0.0.1 > nul"
+      }
+    }
+  ]
+}

@@ -6,20 +6,45 @@ import { rerunTask, runTask, stopTask } from './runner/execute';
 import type { StatusRegistry } from './runner/registry';
 import { focusTaskTerminal } from './terminal/focus';
 import { createTasksJson } from './tasksJson';
-import type { TasksTreeProvider } from './tree/provider';
+import type { TaskCatalog } from './taskCatalog';
+import { getUserTasksUri, isGlobalScoped } from './taskScopes';
+import type { HistoryNode } from './history/provider';
 import { taskKey, type TaskNode } from './types';
 
 export function registerCommands(
 	context: vscode.ExtensionContext,
-	providers: TasksTreeProvider[],
+	catalog: TaskCatalog,
+	reloadAll: () => Promise<void>,
 	registry: StatusRegistry,
 	favorites: FavoritesStore,
 	history: HistoryStore,
 ): void {
-	const reloadAll = () => providers.forEach(p => p.reload());
 	context.subscriptions.push(
-		vscode.commands.registerCommand('tasklens.reload', () => {
-			reloadAll();
+		vscode.commands.registerCommand('tasklens.reload', reloadAll),
+		vscode.commands.registerCommand('tasklens.quickRun', async () => {
+			const tasks = await catalog.getTasks();
+			if (catalog.error) {
+				const choice = await vscode.window.showErrorMessage(`Could not load tasks: ${catalog.error}`, 'Retry');
+				if (choice === 'Retry') { await reloadAll(); }
+				return;
+			}
+			const items = tasks.map(task => ({
+				label: `${favorites.has(taskKey(task)) ? '$(star-full) ' : ''}${task.name}`,
+				description: `${typeof task.scope === 'object' ? task.scope.name : task.source} · ${registry.getStatus(taskKey(task))}`,
+				detail: task.detail, task,
+			})).sort((a, b) => Number(favorites.has(taskKey(b.task))) - Number(favorites.has(taskKey(a.task))));
+			const selected = await vscode.window.showQuickPick(items, { placeHolder: 'Find a task to run', matchOnDescription: true, matchOnDetail: true });
+			if (selected) {
+				if (registry.isRunning(taskKey(selected.task))) { await focusTaskTerminal(selected.task); }
+				else { await runTask(selected.task, registry); }
+			}
+		}),
+		vscode.commands.registerCommand('tasklens.rerunHistory', async (node: HistoryNode | undefined) => {
+			if (!node?.record) { return; }
+			const tasks = await catalog.getTasks();
+			const task = tasks.find(task => taskKey(task) === node.record!.taskKey);
+			if (task) { await rerunTask(task, registry); }
+			else { await vscode.window.showInformationMessage('This task is no longer available. Reload tasks to refresh the list.'); }
 		}),
 		vscode.commands.registerCommand(
 			'tasklens.addFavorite',
@@ -43,6 +68,7 @@ export function registerCommands(
 		),
 		vscode.commands.registerCommand('tasklens.createTasksJson', async () => {
 			await createTasksJson();
+			await reloadAll();
 		}),
 		vscode.commands.registerCommand(
 			'tasklens.runTask',
@@ -51,7 +77,7 @@ export function registerCommands(
 				if (!task) {
 					return;
 				}
-				await runTask(task);
+				await runTask(task, registry);
 			},
 		),
 		vscode.commands.registerCommand(
@@ -76,12 +102,12 @@ export function registerCommands(
 		),
 		vscode.commands.registerCommand(
 			'tasklens.tailLogs',
-			(node: TaskNode | undefined) => {
+			async (node: TaskNode | undefined) => {
 				const task = node?.task;
 				if (!task) {
 					return;
 				}
-				focusTaskTerminal(task);
+				await focusTaskTerminal(task);
 			},
 		),
 		vscode.commands.registerCommand(
@@ -108,47 +134,30 @@ export function registerCommands(
 }
 
 async function revealTaskDefinition(task: vscode.Task): Promise<void> {
-	const folder = resolveTasksJsonFolder(task);
-	if (!folder) {
-		vscode.window.showInformationMessage(
-			`Cannot locate tasks.json — "${task.name}" has no associated workspace folder.`,
-		);
+	const scope = task.scope;
+	const folder = typeof scope === 'object' ? scope : undefined;
+	const uri = isGlobalScoped(task) ? getUserTasksUri()
+		: task.scope === vscode.TaskScope.Workspace ? vscode.workspace.workspaceFile
+		: folder ? vscode.Uri.joinPath(folder.uri, '.vscode', 'tasks.json') : undefined;
+	if (!uri) {
+		await vscode.window.showInformationMessage(`No definition file is available for "${task.name}".`);
 		return;
 	}
-
-	const tasksJsonUri = vscode.Uri.joinPath(folder.uri, '.vscode', 'tasks.json');
 	let doc: vscode.TextDocument;
 	try {
-		doc = await vscode.workspace.openTextDocument(tasksJsonUri);
+		doc = await vscode.workspace.openTextDocument(uri);
 	} catch {
-		vscode.window.showInformationMessage(
-			`No tasks.json found in ${folder.name}.`,
-		);
+		await vscode.window.showInformationMessage(`No task definition file found for "${task.name}".`);
 		return;
 	}
-
-	const range = locateTaskInJsonc(doc.getText(), task.name);
-	const editor = await vscode.window.showTextDocument(doc);
+	const range = locateTaskInJsonc(doc.getText(), task.name, uri.path.endsWith('.code-workspace'));
 	if (!range) {
-		vscode.window.showInformationMessage(
-			`"${task.name}" is not defined in ${folder.name}/.vscode/tasks.json (it may be a contributed task).`,
-		);
+		await vscode.window.showInformationMessage(`"${task.name}" is supplied by ${task.source} and has no matching definition in this file.`);
 		return;
 	}
+	const editor = await vscode.window.showTextDocument(doc);
 	const start = doc.positionAt(range.offset);
 	const end = doc.positionAt(range.offset + range.length);
-	const sel = new vscode.Range(start, end);
-	editor.selection = new vscode.Selection(start, start);
-	editor.revealRange(sel, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
-}
-
-function resolveTasksJsonFolder(
-	task: vscode.Task,
-): vscode.WorkspaceFolder | undefined {
-	const scope = task.scope;
-	if (scope && typeof scope === 'object' && 'uri' in scope) {
-		return scope;
-	}
-	const folders = vscode.workspace.workspaceFolders ?? [];
-	return folders[0];
+	editor.selection = new vscode.Selection(start, end);
+	editor.revealRange(new vscode.Range(start, end), vscode.TextEditorRevealType.InCenterIfOutsideViewport);
 }

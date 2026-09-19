@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import type { HistoryStore, RunRecord } from './store';
+import { statusIcon } from '../tree/icons';
 
 export interface HistoryNode {
 	kind: 'run' | 'empty';
@@ -38,6 +39,7 @@ export class HistoryTreeProvider
 			vscode.TreeItemCollapsibleState.None,
 		);
 		item.description = formatDescription(record);
+		item.id = record.id;
 		item.iconPath = iconForOutcome(record);
 		item.tooltip = buildTooltip(record);
 		item.contextValue =
@@ -89,7 +91,7 @@ export class HistoryTreeProvider
 function formatDescription(record: RunRecord): string {
 	const when = formatRelativeTime(record.startedAt);
 	const duration = formatDuration(record);
-	return `${when} · ${duration}`;
+	return `${record.outcome} · ${when} · ${duration}`;
 }
 
 function buildTooltip(record: RunRecord): vscode.MarkdownString {
@@ -113,29 +115,13 @@ function buildTooltip(record: RunRecord): vscode.MarkdownString {
 }
 
 function iconForOutcome(record: RunRecord): vscode.ThemeIcon {
-	switch (record.outcome) {
-		case 'running':
-			return new vscode.ThemeIcon(
-				'sync~spin',
-				new vscode.ThemeColor('charts.blue'),
-			);
-		case 'succeeded':
-			return new vscode.ThemeIcon(
-				'pass',
-				new vscode.ThemeColor('charts.green'),
-			);
-		case 'failed':
-			return new vscode.ThemeIcon(
-				'error',
-				new vscode.ThemeColor('charts.red'),
-			);
-		case 'ended':
-		default:
-			return new vscode.ThemeIcon('circle-outline');
-	}
+	return statusIcon(record.outcome) ?? new vscode.ThemeIcon('question');
 }
 
 function formatDuration(record: RunRecord): string {
+	if (record.outcome !== 'running' && record.endedAt === undefined) {
+		return 'duration unavailable';
+	}
 	const end = record.endedAt ?? Date.now();
 	return formatMs(end - record.startedAt);
 }

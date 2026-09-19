@@ -4,6 +4,26 @@ All notable changes to the "tasklens" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.1.0] - 2026-09-19
+
+### Fixed
+
+- Update status immediately on process exit; distinguish success, failure, termination, and an end without an exit code.
+- Track existing executions at activation, reconcile missed end events, and handle overlapping runs and out-of-order lifecycle events without leaving a running icon behind.
+- Register the termination waiter before stopping a task; prevent repeated clicks from starting concurrent restarts.
+- Use one shared task discovery request for all views. Ignore obsolete responses, retain the previous list after an error, and offer retry after errors or timeouts.
+- Refresh history from execution-specific results, including late exit codes. Old persisted runs no longer appear to run forever after a window reload.
+- Avoid disk scans for task classification and preserve folder scope when user tasks share a label.
+- Show empty-view actions by omitting empty Favorites groups. Keep tree expansion stable during refresh.
+- Reveal the correct user or workspace task definition instead of falling back to an unrelated folder.
+
+### Added
+
+- Find and Run Task: search fetched tasks from the palette or view toolbar, with favorites first.
+- Re-run Task from History, and Show Task Terminal for completed tasks.
+- Status text and exit-code tooltips alongside task icons; loading and retry states in the task views.
+- Regression tests plus actual VS Code shell-task tests for completion, failure, terminal disposal, and restart.
+
 ## [0.1.0]
 
 ### Added
