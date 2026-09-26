@@ -8,15 +8,9 @@ export interface GroupableTask {
 
 export function buildTree(tasks: GroupableTask[], separator: string): TaskNode[] {
 	const root: TaskNode[] = [];
-	const sep = separator.length > 0 ? separator : '::';
 
 	for (const t of tasks) {
-		const segments = t.name
-			.split(sep)
-			.map(s => s.trim())
-			.filter(s => s.length > 0);
-
-		const path = segments.length > 0 ? segments : [t.name];
+		const path = splitTaskName(t.name, separator);
 		let level = root;
 
 		for (let i = 0; i < path.length - 1; i++) {
@@ -43,4 +37,9 @@ export function buildTree(tasks: GroupableTask[], separator: string): TaskNode[]
 	}
 
 	return root;
+}
+
+export function splitTaskName(name: string, separator: string): string[] {
+	const segments = name.split(separator || '::').map(segment => segment.trim()).filter(Boolean);
+	return segments.length > 0 ? segments : [name];
 }

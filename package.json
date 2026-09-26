@@ -2,7 +2,7 @@
     "name": "tasklens",
     "displayName": "TaskLens \u2014 Task Lens for VS Code Tasks",
     "description": "TaskLens (Task Lens): a clean, fast, free task panel for tasks.json. List, run, re-run, stop, tail, and favorite every VS Code task \u2014 Workspace, Global, and Auto-detected (npm, gulp, typescript) \u2014 from one panel.",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "icon": "media/tasklens-icon.png",
     "publisher": "pydemia",
     "license": "Apache-2.0",
@@ -139,6 +139,13 @@
                 "title": "Re-run Task",
                 "category": "Tasklens",
                 "icon": "$(debug-restart)"
+            },
+            {
+                "command": "tasklens.changeGroupSeparator",
+                "title": "Change Group Separator",
+                "category": "Tasklens",
+                "icon": "$(list-tree)",
+                "enablement": "workbenchState != empty"
             }
         ],
         "viewsWelcome": [
@@ -182,6 +189,11 @@
                     "command": "tasklens.quickRun",
                     "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/",
                     "group": "navigation@0"
+                },
+                {
+                    "command": "tasklens.changeGroupSeparator",
+                    "when": "view =~ /^tasklens\\.(workspace|global|builtin)$/",
+                    "group": "navigation@1"
                 }
             ],
             "view/item/context": [
@@ -287,7 +299,7 @@
                 "tasklens.groupSeparator": {
                     "type": "string",
                     "default": "::",
-                    "description": "Separator used to derive the hierarchical task tree from task labels. E.g. with '::', a task named 'root::branch1::task1' is nested under root > branch1 > task1."
+                    "description": "Separator used to derive the hierarchical task tree from task labels. E.g. with '::', a task named 'root::branch1::task1' is nested under root > branch1 > task1. Change it for the current workspace with the Change Group Separator button in the task view toolbar."
                 },
                 "tasklens.confirmRerunIfRunning": {
                     "type": "boolean",

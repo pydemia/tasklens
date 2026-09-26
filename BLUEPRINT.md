@@ -40,6 +40,10 @@ Every group and task occurrence has a stable tree-item ID. Folder IDs include th
 
 The tree uses native VS Code TreeItems, ThemeIcons, menus, and QuickPick. No webview is required.
 
+`tasklens.changeGroupSeparator` opens a QuickPick from each task view's toolbar or the palette. The current separator appears in the view header. Users can select a recommendation, type a literal separator and press Enter, enter a custom value in an InputBox, or remove the workspace override. A selection is written to `ConfigurationTarget.Workspace`; cancellation does not modify settings. The existing configuration event rebuilds all three views from the cached task snapshot.
+
+`grouping/suggest.ts` analyzes labels with the same pure `splitTaskName` function as the tree. It ranks punctuation candidates by the number of task names placed into shared prefix groups, removes candidates producing an identical hierarchy, and provides a real task-name preview. Separate views/folders and duplicate labels do not inflate a candidate's evidence. Recommendations require a shared group with at least two distinct tasks; no LLM or network request is used.
+
 ## Execution and results
 
 `StatusRegistry` is the only lifecycle interpreter. It subscribes before seeding itself from `vscode.tasks.taskExecutions` so activation during a run does not miss it.

@@ -22,6 +22,11 @@ export function activate(context: vscode.ExtensionContext): void {
 		.map((id, index) => vscode.window.createTreeView(id, {
 			treeDataProvider: providers[index], showCollapseAll: true,
 		}));
+	const updateGroupingDescriptions = () => {
+		const separator = vscode.workspace.getConfiguration('tasklens').get<string>('groupSeparator', '::') || '::';
+		for (const view of views) { view.description = `Group by ${JSON.stringify(separator)}`; }
+	};
+	updateGroupingDescriptions();
 	const historyProvider = new HistoryTreeProvider(history);
 	const historyView = vscode.window.createTreeView('tasklens.history', { treeDataProvider: historyProvider });
 	const reloadAll = async () => {
@@ -67,6 +72,7 @@ export function activate(context: vscode.ExtensionContext): void {
 				|| e.affectsConfiguration('typescript.tsc.autoDetect')) {
 				scheduleReload();
 			} else if (e.affectsConfiguration('tasklens')) {
+				updateGroupingDescriptions();
 				providers.forEach(provider => provider.reload());
 			}
 		}),

@@ -150,7 +150,13 @@ db::seed                →  db › seed
 build                   →  build       (top-level leaf)
 ```
 
-Change the separator with `tasklens.groupSeparator`:
+Click **Change Group Separator** (the tree icon) in a task view's title bar, or run **Tasklens: Change Group Separator** from the command palette. Choose a suggested separator, or type a literal separator and press Enter. Each candidate shows how many task names it splits and an example of the resulting hierarchy.
+
+Suggestions use repeated punctuation and shared task-name prefixes. They run locally without an LLM or network requests. Plain labels or a single task may have no useful suggestion; custom input is always available. Escape cancels the picker without changing the tree.
+
+The selected separator is saved only for the current workspace (`.vscode/settings.json` for a folder, or the settings section of a `.code-workspace` file). All three task views update immediately, without refetching tasks. **Use inherited setting** removes the workspace override and restores the user/default value. The current separator is also shown in the view header.
+
+You can still set `tasklens.groupSeparator` directly:
 
 ```jsonc
 // .vscode/settings.json
@@ -235,6 +241,7 @@ All commands are namespaced `tasklens.*`. Per-task commands are hidden from the 
 
 | Command | Title | Where |
 |---|---|---|
+| `tasklens.changeGroupSeparator` | Change Group Separator | Task view title bar, palette |
 | `tasklens.quickRun` | Find and Run Task | View title bar, palette |
 | `tasklens.rerunHistory` | Re-run Task | History row |
 | `tasklens.clearHistory` | Clear Run History | History title bar, palette |

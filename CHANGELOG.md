@@ -4,6 +4,14 @@ All notable changes to the "tasklens" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.0] - 2026-09-26
+
+### Added
+
+- Change Group Separator in each task view's toolbar and the command palette. Select a suggestion or type a custom delimiter and press Enter.
+- Local, deterministic suggestions based on repeated punctuation and shared task-name prefixes, with split counts and actual hierarchy examples.
+- Workspace-only persistence, an action to restore the inherited separator, and the current separator in each view header. Changes rebuild cached trees immediately; cancelling leaves the configuration untouched.
+
 ## [1.1.0] - 2026-09-19
 
 ### Fixed

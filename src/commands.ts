@@ -10,6 +10,7 @@ import type { TaskCatalog } from './taskCatalog';
 import { getUserTasksUri, isGlobalScoped } from './taskScopes';
 import type { HistoryNode } from './history/provider';
 import { taskKey, type TaskNode } from './types';
+import { changeGroupSeparator } from './grouping/picker';
 
 export function registerCommands(
 	context: vscode.ExtensionContext,
@@ -21,6 +22,7 @@ export function registerCommands(
 ): void {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('tasklens.reload', reloadAll),
+		vscode.commands.registerCommand('tasklens.changeGroupSeparator', () => changeGroupSeparator(catalog, context)),
 		vscode.commands.registerCommand('tasklens.quickRun', async () => {
 			const tasks = await catalog.getTasks();
 			if (catalog.error) {
