@@ -4,7 +4,7 @@ import type { StatusRegistry } from '../runner/registry';
 import type { FavoritesStore } from '../favorites/store';
 import type { TaskCatalog } from '../taskCatalog';
 import { buildList, buildTree, type GroupableTask } from './group';
-import { getTaskViewMode } from './viewMode';
+import { getTaskViewMode, type TaskViewMode } from './viewMode';
 import {
 	favoritesIcon,
 	folderIcon,
@@ -35,6 +35,7 @@ export class TasksTreeProvider
 		private readonly favorites: FavoritesStore,
 		private readonly filter: TaskFilter,
 		private readonly catalog: TaskCatalog,
+		private readonly viewMode: () => TaskViewMode = getTaskViewMode,
 	) {
 		this.registrySub = registry.onChange(() => this._onDidChange.fire());
 		this.favoritesSub = favorites.onDidChange(() => this.reload());
@@ -135,7 +136,7 @@ export class TasksTreeProvider
 			.get<string>('groupSeparator', '::');
 		const folders = vscode.workspace.workspaceFolders ?? [];
 
-		const main = getTaskViewMode() === 'list'
+		const main = this.viewMode() === 'list'
 			? buildList(tasks.map(task => this.toGroupable(task, folders.length > 1)))
 			: folders.length > 1
 				? this.groupByFolder(tasks, folders, separator)
@@ -161,7 +162,7 @@ export class TasksTreeProvider
 
 	private buildFavoritesGroup(tasks: vscode.Task[]): TaskNode {
 		const favTasks = tasks.filter(t => this.favorites.has(taskKey(t)));
-		const includeFolder = getTaskViewMode() === 'list' && (vscode.workspace.workspaceFolders?.length ?? 0) > 1;
+		const includeFolder = this.viewMode() === 'list' && (vscode.workspace.workspaceFolders?.length ?? 0) > 1;
 		const children: TaskNode[] =
 			favTasks.length === 0
 				? []

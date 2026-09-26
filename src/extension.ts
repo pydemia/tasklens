@@ -9,7 +9,7 @@ import { refreshNoTasksJsonContext } from './tasksJson';
 import { initTaskScopes, isTaskDefinitionDocument } from './taskScopes';
 import { builtinTaskFilter, globalTaskFilter, workspaceTaskFilter } from './tree/filters';
 import { TasksTreeProvider } from './tree/provider';
-import { getTaskViewMode } from './tree/viewMode';
+import { TaskViewModeStore } from './tree/viewMode';
 
 export function activate(context: vscode.ExtensionContext): void {
 	initTaskScopes(context);
@@ -17,8 +17,9 @@ export function activate(context: vscode.ExtensionContext): void {
 	const catalog = new TaskCatalog();
 	const favorites = new FavoritesStore(context.workspaceState);
 	const history = new HistoryStore(context.workspaceState, registry);
+	const viewMode = new TaskViewModeStore(context.workspaceState);
 	const providers = [workspaceTaskFilter, globalTaskFilter, builtinTaskFilter]
-		.map(filter => new TasksTreeProvider(registry, favorites, filter, catalog));
+		.map(filter => new TasksTreeProvider(registry, favorites, filter, catalog, () => viewMode.mode));
 	const views = ['tasklens.workspace', 'tasklens.global', 'tasklens.builtin']
 		.map((id, index) => vscode.window.createTreeView(id, {
 			treeDataProvider: providers[index], showCollapseAll: true,
@@ -26,7 +27,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	const updateViewDescriptions = () => {
 		const separator = vscode.workspace.getConfiguration('tasklens').get<string>('groupSeparator', '::') || '::';
 		for (const view of views) {
-			view.description = getTaskViewMode() === 'list' ? 'List' : `Tree · ${JSON.stringify(separator)}`;
+			view.description = viewMode.mode === 'list' ? 'List' : `Tree · ${JSON.stringify(separator)}`;
 		}
 	};
 	updateViewDescriptions();
@@ -36,7 +37,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		registry.reconcile();
 		await Promise.all([catalog.reload(), refreshNoTasksJsonContext()]);
 	};
-	registerCommands(context, catalog, reloadAll, registry, favorites, history);
+	registerCommands(context, catalog, reloadAll, registry, favorites, history, viewMode);
 
 	let reloadTimer: NodeJS.Timeout | undefined;
 	const scheduleReload = () => {
@@ -46,7 +47,11 @@ export function activate(context: vscode.ExtensionContext): void {
 	};
 	const tasksJsonWatcher = vscode.workspace.createFileSystemWatcher('**/.vscode/tasks.json', false, true, false);
 	context.subscriptions.push(
-		registry, catalog, favorites, history, ...providers, ...views, historyProvider, historyView,
+		registry, catalog, favorites, history, viewMode, ...providers, ...views, historyProvider, historyView,
+		viewMode.onDidChange(() => {
+			updateViewDescriptions();
+			providers.forEach(provider => provider.reload());
+		}),
 		new vscode.Disposable(() => clearTimeout(reloadTimer)),
 		catalog.onDidChange(() => {
 			for (const view of views) {

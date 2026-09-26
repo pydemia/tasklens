@@ -152,6 +152,8 @@ build                   →  build       (top-level leaf)
 
 Use the **Tree View / List View** button in a task view's title bar to switch presentation. You can also open **… → Task View** and choose **Tree View** or **List View**; the current option is checked. The choice is saved for the current workspace and applies to Workspace, Global, and Auto-detected views.
 
+If an extension update leaves the current window unable to register `tasklens.viewMode`, the choice is saved in VS Code's workspace storage instead. It takes effect immediately and survives reopening that workspace. The next successful switch writes the setting normally; changing the configured mode in Settings also replaces the stored choice.
+
 Tree View groups names using the separator. List View shows full task names without name or folder groups; in a multi-root workspace, each row identifies its folder. Favorites keep their own section in both views. Switching preserves running status and favorites and uses the cached task list.
 
 The separate **Change Group Separator** button (the string icon) controls Tree View grouping. Click it in a task view's title bar, or run **Tasklens: Change Group Separator** from the command palette. Choose a suggested separator, or type a literal separator and press Enter. Each candidate shows how many task names it splits and an example of the resulting hierarchy. Changing the separator leaves the selected view unchanged; List View uses it when you return to Tree View.

@@ -4,6 +4,13 @@ All notable changes to the "tasklens" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.3.1] - 2026-09-26
+
+### Fixed
+
+- Tree/List switching when an updated window reports `tasklens.viewMode` as an unregistered configuration. The selection is saved in workspace storage until a normal settings write succeeds.
+- Toolbar icons, menu checkmarks, headers, and task rows now use the same effective mode, including restored workspace selections.
+
 ## [1.3.0] - 2026-09-26
 
 ### Added

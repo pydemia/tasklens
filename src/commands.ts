@@ -11,7 +11,7 @@ import { getUserTasksUri, isGlobalScoped } from './taskScopes';
 import type { HistoryNode } from './history/provider';
 import { taskKey, type TaskNode } from './types';
 import { changeGroupSeparator } from './grouping/picker';
-import { getTaskViewMode, setTaskViewMode } from './tree/viewMode';
+import type { TaskViewModeStore } from './tree/viewMode';
 
 export function registerCommands(
 	context: vscode.ExtensionContext,
@@ -20,13 +20,14 @@ export function registerCommands(
 	registry: StatusRegistry,
 	favorites: FavoritesStore,
 	history: HistoryStore,
+	viewMode: TaskViewModeStore,
 ): void {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('tasklens.reload', reloadAll),
 		vscode.commands.registerCommand('tasklens.changeGroupSeparator', () => changeGroupSeparator(catalog, context)),
-		vscode.commands.registerCommand('tasklens.showTreeView', () => setTaskViewMode('tree')),
-		vscode.commands.registerCommand('tasklens.showListView', () => setTaskViewMode('list')),
-		vscode.commands.registerCommand('tasklens.toggleViewMode', () => setTaskViewMode(getTaskViewMode() === 'list' ? 'tree' : 'list')),
+		vscode.commands.registerCommand('tasklens.showTreeView', () => viewMode.set('tree')),
+		vscode.commands.registerCommand('tasklens.showListView', () => viewMode.set('list')),
+		vscode.commands.registerCommand('tasklens.toggleViewMode', () => viewMode.set(viewMode.mode === 'list' ? 'tree' : 'list')),
 		vscode.commands.registerCommand('tasklens.quickRun', async () => {
 			const tasks = await catalog.getTasks();
 			if (catalog.error) {
