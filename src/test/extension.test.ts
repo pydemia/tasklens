@@ -50,7 +50,7 @@ suite('VS Code integration', () => {
 
 	test('activation registers task actions and loads configured tasks', async () => {
 		const commands = await vscode.commands.getCommands(true);
-		for (const id of ['tasklens.reload', 'tasklens.quickRun', 'tasklens.rerunHistory', 'tasklens.changeGroupSeparator']) { assert.ok(commands.includes(id)); }
+		for (const id of ['tasklens.reload', 'tasklens.quickRun', 'tasklens.rerunHistory', 'tasklens.changeGroupSeparator', 'tasklens.showTreeView', 'tasklens.showListView', 'tasklens.toggleViewMode']) { assert.ok(commands.includes(id)); }
 		assert.ok(fixture('test::success'));
 		await vscode.commands.executeCommand('tasklens.reload');
 	});

@@ -3,7 +3,8 @@ import { taskKey, type TaskNode } from '../types';
 import type { StatusRegistry } from '../runner/registry';
 import type { FavoritesStore } from '../favorites/store';
 import type { TaskCatalog } from '../taskCatalog';
-import { buildTree, type GroupableTask } from './group';
+import { buildList, buildTree, type GroupableTask } from './group';
+import { getTaskViewMode } from './viewMode';
 import {
 	favoritesIcon,
 	folderIcon,
@@ -100,7 +101,7 @@ export class TasksTreeProvider
 		const run = node.key ? this.registry.getLastRun(node.key) : undefined;
 		const statusText = status === 'ended' ? 'Ended (exit code unavailable)'
 			: status.charAt(0).toUpperCase() + status.slice(1);
-		item.description = [status === 'idle' ? undefined : statusText, taskType, detail].filter(Boolean).join(' · ');
+		item.description = [status === 'idle' ? undefined : statusText, node.folderName, taskType, detail].filter(Boolean).join(' · ');
 		item.tooltip = [node.fullLabel, statusText + (run?.exitCode !== undefined ? ` (exit ${run.exitCode})` : ''), detail].filter(Boolean).join('\n');
 		if (node.task) {
 			item.resourceUri = taskResourceUri(node.task);
@@ -134,8 +135,9 @@ export class TasksTreeProvider
 			.get<string>('groupSeparator', '::');
 		const folders = vscode.workspace.workspaceFolders ?? [];
 
-		const main =
-			folders.length > 1
+		const main = getTaskViewMode() === 'list'
+			? buildList(tasks.map(task => this.toGroupable(task, folders.length > 1)))
+			: folders.length > 1
 				? this.groupByFolder(tasks, folders, separator)
 				: buildTree(tasks.map(t => this.toGroupable(t)), separator);
 
@@ -159,6 +161,7 @@ export class TasksTreeProvider
 
 	private buildFavoritesGroup(tasks: vscode.Task[]): TaskNode {
 		const favTasks = tasks.filter(t => this.favorites.has(taskKey(t)));
+		const includeFolder = getTaskViewMode() === 'list' && (vscode.workspace.workspaceFolders?.length ?? 0) > 1;
 		const children: TaskNode[] =
 			favTasks.length === 0
 				? []
@@ -169,6 +172,7 @@ export class TasksTreeProvider
 						task: t,
 						key: taskKey(t),
 						favorite: true,
+						folderName: includeFolder ? this.scopeName(t) : undefined,
 						children: [],
 					}));
 		return {
@@ -233,7 +237,11 @@ export class TasksTreeProvider
 		return result;
 	}
 
-	private toGroupable(task: vscode.Task): GroupableTask {
+	private scopeName(task: vscode.Task): string {
+		return typeof task.scope === 'object' ? task.scope.name : task.source;
+	}
+
+	private toGroupable(task: vscode.Task, includeFolder = false): GroupableTask {
 		const key = taskKey(task);
 		return {
 			key,
@@ -243,6 +251,7 @@ export class TasksTreeProvider
 				task,
 				key,
 				favorite: this.favorites.has(key),
+				folderName: includeFolder ? this.scopeName(task) : undefined,
 			},
 		};
 	}

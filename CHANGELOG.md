@@ -4,6 +4,14 @@ All notable changes to the "tasklens" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.3.0] - 2026-09-26
+
+### Added
+
+- Workspace-specific Tree View and List View. List View keeps full task names and shows folder names for multi-root workspaces.
+- A Tree/List switch button and a checked Task View menu in each task view. Switching uses the cached task snapshot and preserves favorites, execution status, and the tree separator.
+- Separate view and delimiter controls: tree/list icons select the presentation; the string icon changes the separator. Delimiter changes do not change the selected view.
+
 ## [1.2.0] - 2026-09-26
 
 ### Added

@@ -150,11 +150,15 @@ db::seed                →  db › seed
 build                   →  build       (top-level leaf)
 ```
 
-Click **Change Group Separator** (the tree icon) in a task view's title bar, or run **Tasklens: Change Group Separator** from the command palette. Choose a suggested separator, or type a literal separator and press Enter. Each candidate shows how many task names it splits and an example of the resulting hierarchy.
+Use the **Tree View / List View** button in a task view's title bar to switch presentation. You can also open **… → Task View** and choose **Tree View** or **List View**; the current option is checked. The choice is saved for the current workspace and applies to Workspace, Global, and Auto-detected views.
+
+Tree View groups names using the separator. List View shows full task names without name or folder groups; in a multi-root workspace, each row identifies its folder. Favorites keep their own section in both views. Switching preserves running status and favorites and uses the cached task list.
+
+The separate **Change Group Separator** button (the string icon) controls Tree View grouping. Click it in a task view's title bar, or run **Tasklens: Change Group Separator** from the command palette. Choose a suggested separator, or type a literal separator and press Enter. Each candidate shows how many task names it splits and an example of the resulting hierarchy. Changing the separator leaves the selected view unchanged; List View uses it when you return to Tree View.
 
 Suggestions use repeated punctuation and shared task-name prefixes. They run locally without an LLM or network requests. Plain labels or a single task may have no useful suggestion; custom input is always available. Escape cancels the picker without changing the tree.
 
-The selected separator is saved only for the current workspace (`.vscode/settings.json` for a folder, or the settings section of a `.code-workspace` file). All three task views update immediately, without refetching tasks. **Use inherited setting** removes the workspace override and restores the user/default value. The current separator is also shown in the view header.
+The selected separator is saved only for the current workspace (`.vscode/settings.json` for a folder, or the settings section of a `.code-workspace` file). All three task views update immediately, without refetching tasks. **Use inherited setting** removes the workspace override and restores the user/default value. The current separator is also shown in the Tree View header.
 
 You can still set `tasklens.groupSeparator` directly:
 
@@ -228,6 +232,7 @@ A task without a matching definition shows a notice. TaskLens does not fall back
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
+| `tasklens.viewMode` | `"tree" \| "list"` | `"tree"` | Workspace presentation. Tree View groups names by separator; List View shows full task names. Choose it with the toolbar button or the Task View menu. |
 | `tasklens.groupSeparator` | `string` | `"::"` | Separator used to derive the hierarchical task tree from task labels. With `::`, a task `db::migrate::up` nests under `db` › `migrate` › `up`. Set to `:` for legacy npm/gulp-style nesting. Empty string falls back to `::`. |
 | `tasklens.confirmRerunIfRunning` | `boolean` | `true` | Show a confirmation prompt when re-running a task that is already running. Set to `false` to re-run without confirmation. |
 
@@ -241,7 +246,10 @@ All commands are namespaced `tasklens.*`. Per-task commands are hidden from the 
 
 | Command | Title | Where |
 |---|---|---|
-| `tasklens.changeGroupSeparator` | Change Group Separator | Task view title bar, palette |
+| `tasklens.showTreeView` | Tree View | Task view title bar, Task View menu, palette |
+| `tasklens.showListView` | List View | Task view title bar, Task View menu, palette |
+| `tasklens.toggleViewMode` | Toggle Tree/List View | Palette |
+| `tasklens.changeGroupSeparator` | Change Group Separator | Separate title bar button, view menu, palette |
 | `tasklens.quickRun` | Find and Run Task | View title bar, palette |
 | `tasklens.rerunHistory` | Re-run Task | History row |
 | `tasklens.clearHistory` | Clear Run History | History title bar, palette |

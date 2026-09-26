@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { buildTree, type GroupableTask } from '../tree/group';
+import { buildList, buildTree, type GroupableTask } from '../tree/group';
 
 function task(name: string): GroupableTask {
 	return {
@@ -10,6 +10,19 @@ function task(name: string): GroupableTask {
 }
 
 suite('buildTree', () => {
+	test('list view keeps full names and scoped task identities without name groups', () => {
+		const first = task('npm: watch:tsc');
+		first.node.favorite = true;
+		first.node.folderName = 'frontend';
+		const second = { ...task('npm: watch:tsc'), key: 'backend', node: { key: 'backend', folderName: 'backend' } };
+		const list = buildList([first, second]);
+		assert.deepStrictEqual(list.map(node => node.label), ['npm: watch:tsc', 'npm: watch:tsc']);
+		assert.ok(list.every(node => node.kind === 'task' && node.children.length === 0));
+		assert.deepStrictEqual(list.map(node => node.key), ['npm: watch:tsc', 'backend']);
+		assert.deepStrictEqual(list.map(node => node.folderName), ['frontend', 'backend']);
+		assert.strictEqual(list[0].favorite, true);
+	});
+
 	test('flat label produces a single leaf', () => {
 		const tree = buildTree([task('build')], ':');
 		assert.strictEqual(tree.length, 1);

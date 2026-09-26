@@ -3,7 +3,11 @@ import type { TaskNode } from '../types';
 export interface GroupableTask {
 	key: string;
 	name: string;
-	node: Pick<TaskNode, 'fullLabel' | 'task' | 'key' | 'favorite'>;
+	node: Pick<TaskNode, 'fullLabel' | 'task' | 'key' | 'favorite' | 'folderName'>;
+}
+
+export function buildList(tasks: GroupableTask[]): TaskNode[] {
+	return tasks.map(task => ({ ...task.node, kind: 'task', label: task.name, fullLabel: task.name, children: [] }));
 }
 
 export function buildTree(tasks: GroupableTask[], separator: string): TaskNode[] {

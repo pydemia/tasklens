@@ -9,6 +9,7 @@ import { refreshNoTasksJsonContext } from './tasksJson';
 import { initTaskScopes, isTaskDefinitionDocument } from './taskScopes';
 import { builtinTaskFilter, globalTaskFilter, workspaceTaskFilter } from './tree/filters';
 import { TasksTreeProvider } from './tree/provider';
+import { getTaskViewMode } from './tree/viewMode';
 
 export function activate(context: vscode.ExtensionContext): void {
 	initTaskScopes(context);
@@ -22,11 +23,13 @@ export function activate(context: vscode.ExtensionContext): void {
 		.map((id, index) => vscode.window.createTreeView(id, {
 			treeDataProvider: providers[index], showCollapseAll: true,
 		}));
-	const updateGroupingDescriptions = () => {
+	const updateViewDescriptions = () => {
 		const separator = vscode.workspace.getConfiguration('tasklens').get<string>('groupSeparator', '::') || '::';
-		for (const view of views) { view.description = `Group by ${JSON.stringify(separator)}`; }
+		for (const view of views) {
+			view.description = getTaskViewMode() === 'list' ? 'List' : `Tree · ${JSON.stringify(separator)}`;
+		}
 	};
-	updateGroupingDescriptions();
+	updateViewDescriptions();
 	const historyProvider = new HistoryTreeProvider(history);
 	const historyView = vscode.window.createTreeView('tasklens.history', { treeDataProvider: historyProvider });
 	const reloadAll = async () => {
@@ -72,7 +75,7 @@ export function activate(context: vscode.ExtensionContext): void {
 				|| e.affectsConfiguration('typescript.tsc.autoDetect')) {
 				scheduleReload();
 			} else if (e.affectsConfiguration('tasklens')) {
-				updateGroupingDescriptions();
+				updateViewDescriptions();
 				providers.forEach(provider => provider.reload());
 			}
 		}),
